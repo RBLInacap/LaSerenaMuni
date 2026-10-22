@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!.env.example
+!.env.ec2.example
+**/.env
+**/.env.*
+**/__pycache__
+**/*.py[cod]
+**/*.sqlite3
+**/media
+**/staticfiles
+**/.venv
+**/venv
+**/node_modules

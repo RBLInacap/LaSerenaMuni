@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'sgr_backend.urls'
 
@@ -146,14 +148,23 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Evidencias en almacenamiento local o en Amazon S3.
 if USE_S3:
-    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
-    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
+    aws_access_key_id = env('AWS_ACCESS_KEY_ID', default='')
+    aws_secret_access_key = env('AWS_SECRET_ACCESS_KEY', default='')
+    if bool(aws_access_key_id) != bool(aws_secret_access_key):
+        raise ImproperlyConfigured(
+            'Configura AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY juntos, '
+            'o deja ambos vacíos para usar el rol IAM de la instancia.'
+        )
+    if aws_access_key_id:
+        AWS_ACCESS_KEY_ID = aws_access_key_id
+        AWS_SECRET_ACCESS_KEY = aws_secret_access_key
     AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='')
+    if not AWS_STORAGE_BUCKET_NAME:
+        raise ImproperlyConfigured(
+            'Configura AWS_STORAGE_BUCKET_NAME cuando USE_S3=True.'
+        )
     AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
-    AWS_S3_CUSTOM_DOMAIN = env(
-        'AWS_S3_CUSTOM_DOMAIN',
-        default=f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com',
-    )
+    AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN', default='')
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     AWS_DEFAULT_ACL = None
     AWS_QUERYSTRING_AUTH = True
@@ -163,11 +174,25 @@ if USE_S3:
             "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         },
         "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    if AWS_S3_CUSTOM_DOMAIN:
+        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    else:
+        MEDIA_URL = (
+            f'https://{AWS_STORAGE_BUCKET_NAME}.s3.'
+            f'{AWS_S3_REGION_NAME}.amazonaws.com/media/'
+        )
 else:
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+        },
+    }
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 

@@ -5,6 +5,7 @@ Aplicación Django para registrar actividades municipales, evidencias de terreno
 ## Aplicación principal
 
 La aplicación Matriz SGR se encuentra en [`backend/`](backend/). La guía completa de instalación, configuración, MySQL/WAMP, pruebas y arranque está en [`backend/README.md`](backend/README.md).
+Para desplegarla en AWS EC2 con Docker Compose, sigue [`AWS_EC2_DEPLOYMENT.md`](AWS_EC2_DEPLOYMENT.md).
 
 Para iniciar en Windows:
 

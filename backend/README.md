@@ -1,5 +1,7 @@
 # Matriz SGR — aplicación Django
 
+Para desplegar la aplicación en AWS EC2 con Docker Compose, sigue la [guía de despliegue AWS](../AWS_EC2_DEPLOYMENT.md).
+
 Aplicación web y API del Sistema de Gestión de Resultados de la Municipalidad de La Serena. Incluye registro de actividades, evidencias, compromisos, casos sociales, auditoría y seguimiento trimestral mediante semáforo.
 
 ## Requisitos
