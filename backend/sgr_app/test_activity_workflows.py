@@ -453,6 +453,32 @@ class ActivityWorkflowTests(TestCase):
         self.assertEqual(compromiso.territorio, 'Sector Centro')
         self.assertEqual(compromiso.descripcion, 'Dar seguimiento a la solicitud')
 
+    def test_activity_registration_uses_calendar_quarter_when_previous_period_is_open(self):
+        previous_period_end = self.period_start - timedelta(days=1)
+        previous_period_start = date(
+            previous_period_end.year,
+            ((previous_period_end.month - 1) // 3) * 3 + 1,
+            1,
+        )
+        self.periodo.fecha_inicio = previous_period_start
+        self.periodo.fecha_termino = previous_period_end
+        self.periodo.save()
+
+        response = self.client.get('/actividad-diaria/registrar-actividad/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['periodo'].fecha_inicio, self.period_start)
+        self.assertEqual(response.context['periodo'].fecha_termino, self.period_end)
+        self.assertContains(response, f'min="{self.period_start.isoformat()}"')
+        self.assertContains(response, f'max="{self.period_end.isoformat()}"')
+
+        data = self.activity_form(item_medicion_id='')
+        response = self.client.post('/actividad-diaria/registrar-actividad/', data)
+
+        self.assertEqual(response.status_code, 302)
+        compromiso = CompromisoAgenda.objects.get(actividad__funcionario=self.funcionario)
+        self.assertEqual(compromiso.fecha_compromiso, self.today)
+
     def test_activity_registration_requires_commitment_details(self):
         data = self.activity_form(compromiso_descripcion='')
         response = self.client.post('/actividad-diaria/registrar-actividad/', data)

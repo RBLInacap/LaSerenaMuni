@@ -57,7 +57,8 @@ def es_codigo_2fa_valido(user, code):
     return False
 
 def get_periodo_activo():
-    return PeriodoMedicion.objects.filter(cerrado=False).order_by('-fecha_inicio', '-id').first() or PeriodoMedicion.objects.order_by('-fecha_inicio', '-id').first()
+    periodo, _ = get_periodo_trimestre_actual()
+    return periodo
 
 
 def _puede_gestionar_compromiso(user, compromiso=None):
@@ -473,7 +474,7 @@ def web_registrar_actividad_personal(request):
         return render(request, 'registrar_actividad.html', {
             'funcionario': funcionario,
             'funcionarios': Usuario.objects.filter(rol=Usuario.Rol.FUNCIONARIO, is_active=True).order_by('last_name', 'first_name'),
-            'items_funcionario': ItemMedicion.objects.filter(periodo=periodo, activo=True, cargo=funcionario.cargo) if periodo and funcionario else [],
+            'items_funcionario': ItemMedicion.objects.filter(periodo=periodo, activo=True, cargo=funcionario.cargo) if periodo and periodo.pk and funcionario else [],
             'solicitantes': Solicitante.objects.order_by('nombre', 'apellido_paterno', 'apellido_materno'),
             'selected_requester': selected_requester,
             'activity_form_data': activity_form_data,
@@ -519,7 +520,7 @@ def web_registrar_actividad_personal(request):
         item_id = request.POST.get('item_medicion_id')
         items_disponibles = ItemMedicion.objects.filter(
             activo=True, periodo=periodo, cargo=funcionario.cargo
-        ) if periodo and funcionario.cargo_id else ItemMedicion.objects.none()
+        ) if periodo and periodo.pk and funcionario.cargo_id else ItemMedicion.objects.none()
         item_medicion = None
         if item_id:
             item_medicion = ItemMedicion.objects.filter(
@@ -1123,7 +1124,7 @@ def web_terreno(request):
     periodo = get_periodo_activo()
     items_medicion = ItemMedicion.objects.filter(
         periodo=periodo, activo=True, cargo=request.user.cargo
-    ) if periodo and request.user.cargo_id else []
+    ) if periodo and periodo.pk and request.user.cargo_id else []
     actividades = Actividad.objects.select_related(
         'delegacion', 'funcionario', 'item', 'item_medicion'
     ).order_by('-fecha_actividad')
