@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de servicio{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0" style="border: 3px solid #7a2e36; background: #f5f3f0;">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="mb-3" style="color: #7a2e36; text-transform: uppercase; font-weight: 700;">{{ servicio.nombre }}</h2>
+                    <p class="mb-4" style="color: #5a5a5a;">{{ servicio.descripcion }}</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded" style="background: rgba(122, 46, 54, 0.08);">
+                                <strong style="color: #7a2e36;">Categoría:</strong><br>
+                                {{ servicio.categoria }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded" style="background: rgba(122, 46, 54, 0.08);">
+                                <strong style="color: #7a2e36;">Costo:</strong><br>
+                                {{ servicio.costo }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded" style="background: rgba(122, 46, 54, 0.08);">
+                                <strong style="color: #7a2e36;">Plazo:</strong><br>
+                                {{ servicio.dias_habiles }} días hábiles
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="color: #7a2e36; font-weight: 700;">Requisitos</h4>
+                    <ul style="color: #5a5a5a;">
+                        {% for requisito in servicio.requisitos.all %}
+                        <li>{{ requisito.descripcion }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <a href="/servicios/" class="btn btn-municipal mt-3">Volver a servicios</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

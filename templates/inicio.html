@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Municipalidad de La Serena{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center justify-content-center g-4">
+        <div class="col-lg-5 text-center">
+            <img src="{% static 'img/la-serena.jpg' %}" alt="La Serena" class="img-fluid rounded-4 shadow-lg" style="max-height: 480px; width: 100%; object-fit: cover; border: 3px solid rgba(255,255,255,0.8);">
+        </div>
+        <div class="col-lg-7 text-center text-lg-start">
+            <h1 class="titulo-principal">La Serena</h1>
+            <h2 class="subtitulo-principal">Municipalidad</h2>
+
+            <div class="mt-4 d-flex justify-content-center justify-content-lg-start gap-3 flex-wrap">
+                <a href="/solicitudes/" class="btn btn-municipal btn-lg">Solicitudes</a>
+                <a href="/acerca/" class="btn btn-outline-municipal btn-lg">Acerca</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
